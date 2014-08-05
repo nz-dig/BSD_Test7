@@ -9,10 +9,4 @@ namespace BSD_Test7.Models
     public interface IEntity
     {
     }
-
-    //public class TEntity: IEntity
-    //{
-    //}
-
-
 }

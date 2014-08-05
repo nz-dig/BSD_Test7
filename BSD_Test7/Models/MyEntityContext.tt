@@ -23,6 +23,8 @@ EndNamespace(namespaceName);
 foreach(var i in helper.GetDecoratedInterfaces()) {
 	WriteEntityClass(code, helper, i);
 }
+WriteGetSets(code, helper, namespaceName, contextClassName);
+
 #>
 <#+
 public void WriteHeader(params string[] extraUsings) {
@@ -210,6 +212,41 @@ private void WriteEntityClass(CodeGenerationTools code, Helper helper, ResourceI
 }
 <#+
 	EndNamespace(iface.InterfaceNamespaceName);
+}
+
+private void WriteGetSets(CodeGenerationTools code, Helper helper, string namespaceName, string contextClassName)
+{
+	BeginNamespace(code, namespaceName);
+#>
+
+	public partial class <#=code.Escape(contextClassName) #> : IDbContext 
+	{	
+		public IEntitySet<T> Set<T>()
+        {
+		<#+
+			foreach(var i in helper.GetDecoratedInterfaces()) 
+			{
+		#>
+			if (typeof(T).Equals(typeof(<#=i.InterfaceFullName#>)))
+            {
+                return (IEntitySet<T>)this.<#= code.Escape(i.PluralizedName) #>;
+            }
+		<#+
+			}
+		#>
+			throw new NotImplementedException();
+		}
+	}
+	
+	public interface IDbContext: IDisposable
+    {
+        IEntitySet<T> Set<T>();
+        void SaveChanges();
+
+    }
+
+<#+
+	EndNamespace(namespaceName);
 }
 
 private void WriteInterfaceImplementation(CodeGenerationTools code, Helper helper, ResourceInterface iface)
