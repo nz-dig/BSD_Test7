@@ -37,5 +37,12 @@ namespace BSD_Test7.Repositories
         {
             return _unitOfWork.Context.Set<T>(); 
         }
+
+        public T GetById(string Id)
+        {
+           // return GetAll().FirstOrDefault<T>(x => Id == x.Id);
+
+            return _unitOfWork.Context.Set<T>().FirstOrDefault<T>(x => x.Id == Id);
+        }
     }
 }

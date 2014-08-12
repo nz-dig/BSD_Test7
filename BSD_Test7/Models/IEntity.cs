@@ -8,5 +8,6 @@ namespace BSD_Test7.Models
 {
     public interface IEntity
     {
+        string Id { get; }
     }
 }

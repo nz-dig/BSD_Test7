@@ -71,7 +71,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>MyEntityContext.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\MyEntityContextPartial1.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\BaseRepository.cs" />

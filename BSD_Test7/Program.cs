@@ -19,7 +19,27 @@ namespace BSD_Test7
             //    MyEntityContext context = (MyEntityContext)uow.Context;
             //}
 
-            MainUOW();
+           // MainUOW();
+            var context = new MyEntityContext();
+            var e3 = context.Persons.FirstOrDefault(x => "Juliet_Binoche" == x.Id);
+            
+            using (IUnitOfWork uow = new UnitOfWork(context))
+            {
+                var extId = "Juliet_Binoche";
+                var all = uow.GetRepository<IPerson>().GetAll();
+                var entity = all.Where(x => x.Id == "Juliet_Binoche").FirstOrDefault();
+
+
+                
+                var e1 = uow.GetRepository<IPerson>().GetAll().FirstOrDefault(x => x.Id == "38e0c45f-14df-47e0-9a13-fac9f7b73cbd");
+                var e2 = uow.GetRepository<IPerson>().GetById("38e0c45f-14df-47e0-9a13-fac9f7b73cbd");
+                var p = uow.GetRepository<IPerson>().Create();
+                p.FirstName = "Matt";
+                p.LastName = "Jones";
+
+               uow.SaveChanges();
+
+            }
         }
 
         static void MainUOW()
