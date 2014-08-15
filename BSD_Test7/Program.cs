@@ -12,36 +12,51 @@ namespace BSD_Test7
     {
         static void Main(string[] args)
         {
-           // MyEntityContext context = new MyEntityContext();
+           //// MainUOW();
 
-            //using (IUnitOfWork uow = new UnitOfWork(new MyEntityContext()))
-            //{
-            //    MyEntityContext context = (MyEntityContext)uow.Context;
-            //}
+           // var context = new MyEntityContext();
 
-           // MainUOW();
-            var context = new MyEntityContext();
-            var e3 = context.Persons.FirstOrDefault(x => "Juliet_Binoche" == x.Id);
             
-            using (IUnitOfWork uow = new UnitOfWork(context))
-            {
-                var extId = "Juliet_Binoche";
-                var all = uow.GetRepository<IPerson>().GetAll();
-                var entity = all.Where(x => x.Id == "Juliet_Binoche").FirstOrDefault();
+           // using (IUnitOfWork uow = new UnitOfWork(context))
+           // {
+           //     var id = "32775041-ac70-43f3-a7f5-8a5101cdb99b";
 
+           //     var e1 = uow.GetRepository<IPerson>().GetAll().FirstOrDefault(x => x.Id == id);
+           //     var e2 = uow.GetRepository<IPerson>().GetAll().FirstOrDefault(x => x.Id.Equals(id)); ;
+           //     var e3 = uow.GetRepository<IPerson>().GetById(id);
 
-                
-                var e1 = uow.GetRepository<IPerson>().GetAll().FirstOrDefault(x => x.Id == "38e0c45f-14df-47e0-9a13-fac9f7b73cbd");
-                var e2 = uow.GetRepository<IPerson>().GetById("38e0c45f-14df-47e0-9a13-fac9f7b73cbd");
-                var p = uow.GetRepository<IPerson>().Create();
-                p.FirstName = "Matt";
-                p.LastName = "Jones";
+           // }
 
-               uow.SaveChanges();
-
-            }
+            TestRepositoryPattern();
         }
 
+       
+        public static void TestRepositoryPattern()
+        {
+            var storeName = "TestRepositoryPattern" + DateTime.Now.Ticks;
+            string id;
+           
+            using ( var context = new MyEntityContext())
+            {
+                var uow = new TempUnitOfWork(context);
+                var repo = new TempRepository<IPerson>(uow);
+                var derived = repo.Create();
+                derived.FirstName = "Danny";
+                derived.FirstName = "Mayers";
+           
+                context.SaveChanges();
+                id = derived.Id;
+            }
+
+            using ( var context = new MyEntityContext())
+            {
+                var uow = new TempUnitOfWork(context);
+                var repo = new TempRepository<IPerson>(uow);
+                var derived = repo.GetById(id);
+              
+            }
+
+        }
         static void MainUOW()
         {
             using (IUnitOfWork uow = new UnitOfWork(new MyEntityContext()))
@@ -51,7 +66,6 @@ namespace BSD_Test7
                 person1.LastName = "Binoche";
                 person1.Id = "Juliet_Binoche";
 
-               // uow.GetRepository<IEntity>().Add(person1);
 
                 uow.GetRepository<IPerson>().Add(person1);
 
@@ -84,9 +98,9 @@ namespace BSD_Test7
                 var p = ctx.Persons;
 
                 uow.SaveChanges();
-            
+
             }
-          
+
 
 
 

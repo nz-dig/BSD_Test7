@@ -12,6 +12,7 @@ namespace BSD_Test7.Repositories
         void Add(T entity);
         T Create();
         IEntitySet<T> GetAll();
-        T GetById(string Id);
+        T GetById(string id);
+        void DeleteObject(T entity);
     }
 }

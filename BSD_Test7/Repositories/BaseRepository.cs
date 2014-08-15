@@ -11,7 +11,7 @@ namespace BSD_Test7.Repositories
     public class BaseRepository<T> : IBaseRepository<T> where T :  IEntity
     {
         private readonly IUnitOfWork _unitOfWork;
-        internal IEntitySet<T> dbSet;
+       // internal IEntitySet<T> dbSet;
 
         
         public BaseRepository(IUnitOfWork unitOfWork)
@@ -24,25 +24,30 @@ namespace BSD_Test7.Repositories
         public void Add(T entity)
         {
             //dbSet.Add(entity);
-            _unitOfWork.Context.Set<T>().Add(entity);
+            _unitOfWork.Context.EntitySet<T>().Add(entity);
         }
 
         public T Create()
         {
             //dbSet.Add(entity);
-            return _unitOfWork.Context.Set<T>().Create();
+            return _unitOfWork.Context.EntitySet<T>().Create();
         }
 
         public IEntitySet<T> GetAll()
         {
-            return _unitOfWork.Context.Set<T>(); 
+            return _unitOfWork.Context.EntitySet<T>(); 
         }
 
-        public T GetById(string Id)
+        public T GetById(string id)
         {
-           // return GetAll().FirstOrDefault<T>(x => Id == x.Id);
+            return _unitOfWork.Context.EntitySet<T>().FirstOrDefault(x => x.Id == id);
+            //return _unitOfWork.Context.EntitySet<T>().FirstOrDefault(x => x.Id.Equals(id));
+            //return _unitOfWork.Context.GetById<T>(id);
+        }
 
-            return _unitOfWork.Context.Set<T>().FirstOrDefault<T>(x => x.Id == Id);
+        public  void DeleteObject(T entity)
+        {
+            _unitOfWork.Context.DeleteObject(entity);
         }
     }
 }

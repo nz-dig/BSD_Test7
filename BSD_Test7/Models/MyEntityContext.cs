@@ -297,10 +297,22 @@ namespace BSD_Test7.Models
 }
 namespace BSD_Test7.Models 
 {
+    	public interface IDbContext: IDisposable
+        {
+            IEntitySet<T> EntitySet<T>();
+            void SaveChanges();
+    		T GetById<T>(string id);
+    		void DeleteObject(object objectToDelete);
+    
+        }
     
     	public partial class MyEntityContext : IDbContext 
+    	{}
+    
+    
+    	public partial class MyEntityContext 
     	{	
-    		public IEntitySet<T> Set<T>()
+    		public IEntitySet<T> EntitySet<T>()
             {
     					if (typeof(T).Equals(typeof(BSD_Test7.Models.ICharacter)))
                 {
@@ -322,15 +334,38 @@ namespace BSD_Test7.Models
                 {
                     return (IEntitySet<T>)this.Roles;
                 }
-    					throw new NotImplementedException();
+    					 throw new InvalidOperationException(typeof(T).FullName + " is not a recognized entity interface type.");
+    		}
+    	}
+    
+    
+    	public partial class MyEntityContext 
+    	{	
+    		public T GetById<T>(string id)
+            {
+    					if (typeof(T).Equals(typeof(BSD_Test7.Models.ICharacter)))
+                {
+                    return (T)this.Characters.FirstOrDefault(x => x.Id == id);
+                }
+    					if (typeof(T).Equals(typeof(BSD_Test7.Models.ICredit)))
+                {
+                    return (T)this.Credits.FirstOrDefault(x => x.Id == id);
+                }
+    					if (typeof(T).Equals(typeof(BSD_Test7.Models.IPerson)))
+                {
+                    return (T)this.Persons.FirstOrDefault(x => x.Id == id);
+                }
+    					if (typeof(T).Equals(typeof(BSD_Test7.Models.IProduction)))
+                {
+                    return (T)this.Productions.FirstOrDefault(x => x.Id == id);
+                }
+    					if (typeof(T).Equals(typeof(BSD_Test7.Models.IRole)))
+                {
+                    return (T)this.Roles.FirstOrDefault(x => x.Id == id);
+                }
+    					 throw new InvalidOperationException(typeof(T).FullName + " is not a recognized entity interface type.");
     		}
     	}
     	
-    	public interface IDbContext: IDisposable
-        {
-            IEntitySet<T> Set<T>();
-            void SaveChanges();
-    
-        }
     
 }

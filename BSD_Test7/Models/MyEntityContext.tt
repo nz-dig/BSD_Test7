@@ -23,8 +23,11 @@ EndNamespace(namespaceName);
 foreach(var i in helper.GetDecoratedInterfaces()) {
 	WriteEntityClass(code, helper, i);
 }
-WriteGetSets(code, helper, namespaceName, contextClassName);
-
+BeginNamespace(code, namespaceName);
+WriteDbContext(code, helper, namespaceName, contextClassName);
+WriteEntitySet(code, helper, namespaceName, contextClassName);
+WriteGetById(code, helper, namespaceName, contextClassName);
+EndNamespace(namespaceName);
 #>
 <#+
 public void WriteHeader(params string[] extraUsings) {
@@ -214,14 +217,31 @@ private void WriteEntityClass(CodeGenerationTools code, Helper helper, ResourceI
 	EndNamespace(iface.InterfaceNamespaceName);
 }
 
-private void WriteGetSets(CodeGenerationTools code, Helper helper, string namespaceName, string contextClassName)
+private void WriteDbContext(CodeGenerationTools code, Helper helper, string namespaceName, string contextClassName)
 {
-	BeginNamespace(code, namespaceName);
 #>
+	public interface IDbContext: IDisposable
+    {
+        IEntitySet<T> EntitySet<T>();
+        void SaveChanges();
+		T GetById<T>(string id);
+		void DeleteObject(object objectToDelete);
+
+    }
 
 	public partial class <#=code.Escape(contextClassName) #> : IDbContext 
+	{}
+
+<#+
+}
+
+private void WriteEntitySet(CodeGenerationTools code, Helper helper, string namespaceName, string contextClassName)
+{
+#>
+
+	public partial class <#=code.Escape(contextClassName) #> 
 	{	
-		public IEntitySet<T> Set<T>()
+		public IEntitySet<T> EntitySet<T>()
         {
 		<#+
 			foreach(var i in helper.GetDecoratedInterfaces()) 
@@ -234,20 +254,40 @@ private void WriteGetSets(CodeGenerationTools code, Helper helper, string namesp
 		<#+
 			}
 		#>
-			throw new NotImplementedException();
+			 throw new InvalidOperationException(typeof(T).FullName + " is not a recognized entity interface type.");
+		}
+	}
+
+<#+
+}
+
+private void WriteGetById(CodeGenerationTools code, Helper helper, string namespaceName, string contextClassName)
+{
+#>
+
+	public partial class <#=code.Escape(contextClassName) #> 
+	{	
+		public T GetById<T>(string id)
+        {
+		<#+
+			foreach(var i in helper.GetDecoratedInterfaces()) 
+			{
+		#>
+			if (typeof(T).Equals(typeof(<#=i.InterfaceFullName#>)))
+            {
+                return (T)this.<#= code.Escape(i.PluralizedName) #>.FirstOrDefault(x => x.Id == id);
+            }
+		<#+
+			}
+		#>
+			 throw new InvalidOperationException(typeof(T).FullName + " is not a recognized entity interface type.");
 		}
 	}
 	
-	public interface IDbContext: IDisposable
-    {
-        IEntitySet<T> Set<T>();
-        void SaveChanges();
-
-    }
 
 <#+
-	EndNamespace(namespaceName);
 }
+
 
 private void WriteInterfaceImplementation(CodeGenerationTools code, Helper helper, ResourceInterface iface)
 {#>
